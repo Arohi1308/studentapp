@@ -1,0 +1,31 @@
+#!/bin/bash
+sudo apt-get install -y mariadb-server
+sudo systemctl start mariadb
+# Set passwords (replace these with your actual passwords)
+DB_ROOT_PASSWORD="1234"
+DB_USER="td"
+DB_PASSWORD="1234"
+
+# Install MariaDB silently
+#sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server
+
+# Set the MariaDB root password
+sudo mysqladmin -u root password "${DB_ROOT_PASSWORD}"
+
+# Create the 'studentapp' database
+sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS studentapp;"
+
+# Create the user 'td' with the password '1234' and grant all privileges
+sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER '${DB_USER}' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON studentapp.* TO '${DB_USER}';"
+
+# Create the 'students' table within the 'studentapp' database
+sudo mysql -u ${DB_USER} -p${DB_PASSWORD} studentapp -e "CREATE TABLE IF NOT EXISTS students (
+    student_id INT NOT NULL AUTO_INCREMENT,
+    student_name VARCHAR(100) NOT NULL,
+    student_addr VARCHAR(100) NOT NULL,
+    student_age VARCHAR(3) NOT NULL,
+    student_qual VARCHAR(20) NOT NULL,
+    student_percent VARCHAR(10) NOT NULL,
+    student_year_passed VARCHAR(10) NOT NULL,
+    PRIMARY KEY (student_id)
+);"
