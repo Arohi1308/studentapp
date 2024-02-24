@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#newchnages
 # Set the root password for MariaDB
 DB_ROOT_PASSWORD="1234"
 
