@@ -7,9 +7,18 @@ DB_ROOT_PASSWORD="1234"
 DB_USER="td"
 DB_PASSWORD="1234"
 
+# Install MariaDB server (if not already installed)
+sudo apt-get update
+sudo apt-get install -y mariadb-server
+
+# Start the MariaDB service
+sudo systemctl start mariadb
+
+# Enable MariaDB to start on boot
+sudo systemctl enable mariadb
+
 # Secure the MariaDB installation
 sudo mysql_secure_installation <<EOF
-${DB_ROOT_PASSWORD}
 ${DB_ROOT_PASSWORD}
 n
 y
@@ -31,7 +40,7 @@ sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
 sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS studentapp;"
 
 # Create the 'students' table
-sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE TABLE IF NOT EXISTS students (
+sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "USE studentapp; CREATE TABLE IF NOT EXISTS students (
     student_id INT NOT NULL AUTO_INCREMENT,
     student_name VARCHAR(100) NOT NULL,
     student_addr VARCHAR(100) NOT NULL,
