@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Set a root password for MariaDB
+# Set the root password for MariaDB
 DB_ROOT_PASSWORD="1234"
 
+# Set the user and password
+DB_USER="td"
+DB_PASSWORD="1234"
 
-
-# Secure the installation
+# Secure the MariaDB installation
 sudo mysql_secure_installation <<EOF
-
-${1234}
+${DB_ROOT_PASSWORD}
 n
 y
 y
@@ -16,23 +17,8 @@ y
 y
 EOF
 
-
-
-
-
-
-
-#!/bin/bash
-
-# Set the MariaDB root password
-DB_ROOT_PASSWORD="1234"
-
-# Set the user and password
-DB_USER="td"
-DB_PASSWORD="1234"
-
 # Create the user with the password
-sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
 
 # Grant necessary privileges to the user (adjust privileges as needed)
 sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO '${DB_USER}'@'localhost';"
@@ -42,9 +28,6 @@ sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
 
 # Create the 'studentapp' database
 sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS studentapp;"
-
-# Switch to the 'studentapp' database
-sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "USE studentapp;"
 
 # Create the 'students' table
 sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE TABLE IF NOT EXISTS students (
@@ -58,3 +41,4 @@ sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE TABLE IF NOT EXISTS student
     PRIMARY KEY (student_id)
 );"
 
+echo "Database setup completed successfully."
