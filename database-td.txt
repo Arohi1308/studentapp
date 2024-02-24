@@ -10,6 +10,7 @@ DB_PASSWORD="1234"
 # Secure the MariaDB installation
 sudo mysql_secure_installation <<EOF
 ${DB_ROOT_PASSWORD}
+${DB_ROOT_PASSWORD}
 n
 y
 y
