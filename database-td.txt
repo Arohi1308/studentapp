@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt-get install -y mariadb-server
+
 sudo systemctl start mariadb
 # Set passwords (replace these with your actual passwords)
 DB_ROOT_PASSWORD="1234"
