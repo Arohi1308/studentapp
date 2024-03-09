@@ -1,5 +1,5 @@
 #!/bin/bash
-#newchnages
+
 # Set the root password for MariaDB
 DB_ROOT_PASSWORD="1234"
 
@@ -8,8 +8,8 @@ DB_USER="td"
 DB_PASSWORD="1234"
 
 # Install MariaDB server (if not already installed)
-sudo apt-get update
-sudo apt-get install -y mariadb-server
+sudo yum update -y
+sudo yum install -y mariadb105-server
 
 # Start the MariaDB service
 sudo systemctl start mariadb
@@ -17,30 +17,38 @@ sudo systemctl start mariadb
 # Enable MariaDB to start on boot
 sudo systemctl enable mariadb
 
-# Secure the MariaDB installation
-sudo mysql_secure_installation <<EOF
-${DB_ROOT_PASSWORD}
-n
-y
-y
-y
-y
+# Set the root password and secure the MariaDB installation
+sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';"
+
+# Since mysql_secure_installation is an interactive script, we automate the secure installation steps as follows:
+sudo mysql -u root -p"${DB_ROOT_PASSWORD}" <<EOF
+-- Set password for root accounts
+UPDATE mysql.user SET Password=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';
+-- Remove anonymous users
+DELETE FROM mysql.user WHERE User='';
+-- Disallow root login remotely
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+-- Remove test database and access to it
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+-- Reload privilege tables
+FLUSH PRIVILEGES;
 EOF
 
 # Create the user with the password
-sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
 
 # Grant necessary privileges to the user (adjust privileges as needed)
-sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO '${DB_USER}'@'localhost';"
+sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO '${DB_USER}'@'localhost';"
 
 # Flush privileges to apply changes
-sudo mysql -u root -p${DB_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
+sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
 
 # Create the 'studentapp' database
-sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS studentapp;"
+sudo mysql -u ${DB_USER} -p"${DB_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS studentapp;"
 
 # Create the 'students' table
-sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "USE studentapp; CREATE TABLE IF NOT EXISTS students (
+sudo mysql -u ${DB_USER} -p"${DB_PASSWORD}" -e "USE studentapp; CREATE TABLE IF NOT EXISTS students (
     student_id INT NOT NULL AUTO_INCREMENT,
     student_name VARCHAR(100) NOT NULL,
     student_addr VARCHAR(100) NOT NULL,
@@ -50,5 +58,7 @@ sudo mysql -u ${DB_USER} -p${DB_PASSWORD} -e "USE studentapp; CREATE TABLE IF NO
     student_year_passed VARCHAR(10) NOT NULL,
     PRIMARY KEY (student_id)
 );"
+
+
 
 echo "Database setup completed successfully."
